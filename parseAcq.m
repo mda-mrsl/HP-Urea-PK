@@ -1,12 +1,12 @@
 function parseAcq(acqParams)
 
 % Parse structure containing acquisition parameters
-%##########################################################################
+%########################################################################## 
 %#  parseAcq(acqParams)
 %#
 %#  Interpret structure containing acquisition parameter values, replacing
-%#  any missing parameters with defaults. No outputs should be assigned
-%#  when using this function, variables are assigned by name into the
+%#  any missing parameters with defaults. No outputs should be assigned 
+%#  when using this function, variables are assigned by name into the 
 %#  workspace of the caller.
 %#
 %#  OPTIONAL INPUTS:
@@ -17,6 +17,7 @@ function parseAcq(acqParams)
 %#            'conventional' - Fixed TR and flip angle spoiled imaging
 %#            'periodicRF'   - Alternate flip angle at end of each segment
 %#            'periodicDP'   - Diffusion preparation at end of each segment
+%#            'interDP'      - Diffusion preparation every other exc
 %#            Default = 'conventional'
 %#          tEnd      - Time of acquisition end                      [s]
 %#            Default = 60
@@ -31,7 +32,7 @@ function parseAcq(acqParams)
 %#          errFa     - Error factor in flip angle calibration
 %#            Default = 1
 %#          tSegment  - Segment duration                             [s]
-%#            Default = 10
+%#            Default = 12
 %#          faSegment - Alternate flip angle at end of each segment  [deg]
 %#            Default = 90
 %#          bval      - Gradient b-value at end of each segment    [s/mm^2]
@@ -66,7 +67,7 @@ defaultParams = struct( ...
     'TR',           1,	... % [s]
     'fa',           20,	... % [deg]
     'errFa',        1,	...
-    'tSegment',     10,	... % [s]
+    'tSegment',     12,	... % [s]
     'faSegment',    90,	... % [deg]
     'bval',         30,	... % [s/mm^2]
     'TE',           0);     % [ms]
@@ -117,6 +118,8 @@ switch lower(acqParams.acqScheme)
             ts = find(t >= segment*acqParams.tSegment, 1);
             bval(ts) = acqParams.bval;
         end
+    case 'interdp'
+        bval(2:2:end) = acqParams.bval;
     otherwise
         warning('parseAcq:acqScheme', ['Acquisition scheme not ', ...
             'recognized. Defaulting to "conventional".'])
